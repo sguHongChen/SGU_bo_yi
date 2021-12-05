@@ -21,12 +21,30 @@
     <ClInclude Include="test.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="NOGO.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Rules.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="ChessPoint.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="test.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="Main.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Rules.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="ChessPoint.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="NOGO.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
