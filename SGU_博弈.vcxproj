@@ -141,12 +141,14 @@
   <ItemGroup>
     <ClInclude Include="ChessPoint.h" />
     <ClInclude Include="config.h" />
+    <ClInclude Include="Evalue.h" />
     <ClInclude Include="NOGO.h" />
     <ClInclude Include="Rules.h" />
     <ClInclude Include="test.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ChessPoint.cpp" />
+    <ClCompile Include="Evalue.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="NOGO.cpp" />
     <ClCompile Include="Rules.cpp" />

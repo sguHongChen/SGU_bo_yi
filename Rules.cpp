@@ -16,7 +16,7 @@ namespace NOGO {
 	}
 
 	//获取棋子整个棋盘状态下的气
-	int get_this_qi(const ChessPoint& point) {
+	int Rules::get_this_qi(const ChessPoint& point) {
 		int sum = 0;
 	    const char x = point.get_x();
 		const char y = point.get_y();
@@ -91,11 +91,11 @@ namespace NOGO {
 	//对外使用
 	int Rules::get_qi(const ChessPoint& point) {
 		clear_is_read();
-		return get_this_qi(point);
+		return Rules::get_this_qi(point);
 	}
 
 	//if is kill myself return true 
-	bool is_kill_myself(const ChessPoint& point) {
+	bool Rules::is_kill_myself(const ChessPoint& point) {
 		ChessBoard[point.get_x()][point.get_y()] = point.get_color();
 		
 		//如果棋子有气
@@ -110,15 +110,15 @@ namespace NOGO {
 	}
 
 	//if is kill otherself return true 
-	bool is_kill_otherself(const ChessPoint& point) {
+	bool Rules::is_kill_otherself(const ChessPoint& point) {
 		bool is_kill = 0;
 		const char x = point.get_x();
 		const char y = point.get_y();
 		//模拟落子
 		ChessBoard[x][y] = point.get_color();
+		//获取对手棋子颜色
 		const Color mate = - point.get_color();
 		
-
 		//under
 		if (x + 1 < NoGo_Board_size &&
 			(ChessBoard[x + 1][y] == mate)) {
@@ -177,7 +177,7 @@ namespace NOGO {
 
 
 	//判断单个棋子位置是否是棋子的眼
-	bool isEyes(ChessPoint point) {
+	bool Rules::isEyes(ChessPoint point) {
 
 		const char x = point.get_x();
 		const char y = point.get_y();
@@ -196,6 +196,7 @@ namespace NOGO {
 		if (y + 1 < NoGo_Board_size && ChessBoard[x][y + 1] != color) {
 			return false;
 		}
+		
 		// 如果在这个坐标下一子，判断是否是自杀
 		if (is_kill_myself(point)) {
 			clear_is_read();
@@ -218,6 +219,80 @@ namespace NOGO {
 			}
 		}
 		return  eyes;
+	}
+
+	//返回当前情况下一个颜色所有可以获得的所有落子点
+	std::vector<ChessPoint&> Rules::eligible(const Color color) {
+		//TODO  这个内存大小是可以改的更小的   可以加一点动态规划
+		std::vector<ChessPoint&> ret(81);
+		for (int i = 0; i < NoGo_Board_size; i++) {
+			for (int j = 0; j < NoGo_Board_size; j++) {
+				//只判断没有落子的位置
+				if (ChessBoard[i][j] != no_chess) continue;
+				ChessPoint eligible_point(i, j, color);
+
+				//除去不符合规则的棋子
+				if (is_kill(eligible_point)) continue;
+
+				ret.push_back(eligible_point);
+			}
+		}
+		return ret;
+	}
+
+	//返回是否是公共的可落子点
+	bool Rules::is_all_eligible(const ChessPoint& point) {
+		return !is_kill(point) ||
+			!is_kill(ChessPoint(point.get_x(), point.get_y(), -point.get_color()));
+	}
+
+	//返回当前情况 下一个颜色的 所有可落子点 中对手不可落子的点
+	std::vector<ChessPoint&> Rules::just_my_eligible(const Color color) {
+		//TODO  这个内存大小是可以改的更小的   可以加一点动态规划
+		std::vector<ChessPoint&> ret(81);
+
+		for (int i = 0; i < NoGo_Board_size; i++) {
+			for (int j = 0; j < NoGo_Board_size; j++) {
+				//只判断没有落子的位置
+				if (ChessBoard[i][j] != no_chess) continue;
+				ChessPoint eligible_my_point(i, j, color);
+				ChessPoint eligible_other_point(i, j, -color);
+				//出去自己不能下的棋子
+				if (is_kill(eligible_my_point)) continue;
+				//保留对方不能下的棋子
+				if (is_kill(eligible_other_point)) {
+					ret.push_back(eligible_my_point);
+				}
+			}
+		}
+
+
+		return ret;
+	}
+
+
+	//判断该棋子是否是自己的虎口 
+	//@return 返回能够创建眼的个数
+	int Rules::is_jaws(const ChessPoint& point) {
+		int jaws = 0;
+
+		const char x = point.get_x();
+		const char y = point.get_y();
+		const Color color = point.get_color();
+		
+		if (ChessBoard[x][y] == no_chess) {
+			jaws = get_eye(color);
+			ChessBoard[x][y] == color;
+			jaws = get_eye(color) - jaws;
+			ChessBoard[x][y] == color;
+		}
+
+		return jaws;
+	}
+
+	//判断该棋子能否破掉对方的眼
+	bool Rules::is_Broken_eyes(const ChessPoint& point) {
+		return is_jaws(ChessPoint(point.get_x(), point.get_y(), -point.get_color()));
 	}
 
 }//namespace NOGO
