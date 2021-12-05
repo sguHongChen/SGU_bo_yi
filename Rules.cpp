@@ -94,17 +94,8 @@ namespace NOGO {
 		return get_this_qi(point);
 	}
 
-	//获取棋子整个棋盘状态下的眼
-	int Rules::get_eye(const Color color) {
-		//TODO
-		int eyes = 0;
-
-		return  eyes;
-	}
-
-
 	//if is kill myself return true 
-	bool is_killer_myself(const ChessPoint& point) {
+	bool is_kill_myself(const ChessPoint& point) {
 		ChessBoard[point.get_x()][point.get_y()] = point.get_color();
 		
 		//如果棋子有气
@@ -119,7 +110,7 @@ namespace NOGO {
 	}
 
 	//if is kill otherself return true 
-	bool is_killer_otherself(const ChessPoint& point) {
+	bool is_kill_otherself(const ChessPoint& point) {
 		bool is_kill = 0;
 		const char x = point.get_x();
 		const char y = point.get_y();
@@ -180,8 +171,53 @@ namespace NOGO {
 
 	//判断该位置落子是否符合规则
 	//if is kill myself or otherself return true 
-	bool Rules::is_killer(const ChessPoint& point) {
-		return is_killer_myself(point) || is_killer_otherself(point);
+	bool Rules::is_kill(const ChessPoint& point) {
+		return is_kill_myself(point) || is_kill_otherself(point);
+	}
+
+
+	//判断单个棋子位置是否是棋子的眼
+	bool isEyes(ChessPoint point) {
+
+		const char x = point.get_x();
+		const char y = point.get_y();
+		const Color color = point.get_color();
+
+		// 如果上下左右有一个不是已方的棋子，则返回false
+		if (x - 1 > -1 && ChessBoard[x - 1][y] != color) {
+			return false;
+		}
+		if (x + 1 < NoGo_Board_size && ChessBoard[x + 1][y] != color) {
+			return false;
+		}
+		if (y - 1 > -1 && ChessBoard[x][y - 1] != color) {
+			return false;
+		}
+		if (y + 1 < NoGo_Board_size && ChessBoard[x][y + 1] != color) {
+			return false;
+		}
+		// 如果在这个坐标下一子，判断是否是自杀
+		if (is_kill_myself(point)) {
+			clear_is_read();
+			return false;
+		}
+		return true;
+	}
+
+	//根据棋手棋子颜色返回该棋手的眼的个数
+	int Rules::get_eye(const Color color) {
+		int eyes = 0;
+		for (int i = 0; i < NoGo_Board_size; i++) {
+			for (int j = 0; j < NoGo_Board_size; j++) {
+				//只判断没有落子的位置
+				if (ChessBoard[i][j] != no_chess) continue;
+				ChessPoint eye_point(i, j, color);
+				if (isEyes(eye_point)) {
+					eyes++;
+				}
+			}
+		}
+		return  eyes;
 	}
 
 }//namespace NOGO
